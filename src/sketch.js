@@ -9,7 +9,6 @@ const mappa = new Mappa('Leaflet');
 
 function preload() {
     img = loadImage('./assets/iss.png');
-    getIss();
 }
 
 function setup() {
@@ -17,17 +16,23 @@ function setup() {
     imageMode(CENTER);
     angleMode(DEGREES);
 
+    getIss().then(createMap);
+
+    setInterval(function () {
+        getIss().then(drawIss);
+    }, 3000); // Calls where the iss at api every 3 seconds
+}
+
+function createMap() {
     const options = {
         lat: latitude,
         lng: longitude,
-        zoom: 1.5,
+        zoom: 2.5,
         style: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
     };
 
-
     issMap = mappa.tileMap(options);
     issMap.overlay(canvas);
-    drawIss();
     issMap.onChange(drawIss);
 }
 
@@ -38,6 +43,8 @@ function drawIss() {
     clear();
 
     const groundTrack = getGroundTrack();
+
+    console.log(groundTrack[0]);
 
     stroke(252, 226, 5);
     strokeWeight(3);
@@ -67,7 +74,7 @@ async function getIss() {
 }
 
 const orbits = 3; // Number of orbits to calculate
-const timeStep = 60; // Amount of steps to calculate per total degrees
+const timeStep = 180; // Amount of steps to calculate per total degrees
 const degreesPerSecond = 360 / 86400; // The amount of degrees the earth rotates per second
 const T = 5580; // Period of ISS
 const inclination = 51.64; // Degrees of inclination of the iss' orbit
@@ -75,7 +82,7 @@ const earthRotationPerOrbit = T * degreesPerSecond; // Amount earth rotates per 
 function getGroundTrack() {
     const phase = asin(latitude / inclination); // Current phase shift of latitude of the ISS
     const deltaTheta = orbits * 360 / timeStep;
-    const deltaRotation = earthRotationPerOrbit / deltaTheta;
+    const deltaRotation = earthRotationPerOrbit / timeStep;
 
     let groundTrack = [];
     let long = longitude;
@@ -85,9 +92,8 @@ function getGroundTrack() {
         groundTrack.push(createVector(lat, long));
         long += deltaTheta - deltaRotation;
         if (long > 180) {
-            long = long - 360;
+            long -= 360;
         }
-
     }
 
     return groundTrack;
