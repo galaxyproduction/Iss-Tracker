@@ -8,7 +8,7 @@ let canvas;
 const mappa = new Mappa('Leaflet');
 
 function preload() {
-    img = loadImage('./assets/iss.png');
+    img = loadImage('./icons/iss.png');
 }
 
 function setup() {
@@ -43,8 +43,6 @@ function drawIss() {
     clear();
 
     const groundTrack = getGroundTrack();
-
-    console.log(groundTrack[0]);
 
     stroke(252, 226, 5);
     strokeWeight(3);
