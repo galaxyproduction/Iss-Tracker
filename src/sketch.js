@@ -1,32 +1,33 @@
-let issMap;
-let canvas;
-
-const mappa = new Mappa('Leaflet');
-
-const options = {
-    lat: 0,
-    lng: 0,
-    zoom: 1,
-    style: "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
-}
-
 let img;
 const api_url = "https://api.wheretheiss.at/v1/satellites/25544";
 let latitude = 0;
 let longitude = 0;
 
+let issMap;
+let canvas;
+const mappa = new Mappa('Leaflet');
+
 function preload() {
     img = loadImage('./assets/iss.png');
+    getIss();
 }
 
 function setup() {
     canvas = createCanvas(640, 640);
     imageMode(CENTER);
+    angleMode(DEGREES);
+
+    const options = {
+        lat: latitude,
+        lng: longitude,
+        zoom: 1.5,
+        style: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+    };
+
 
     issMap = mappa.tileMap(options);
     issMap.overlay(canvas);
-
-    getIss();
+    drawIss();
     issMap.onChange(drawIss);
 }
 
@@ -35,6 +36,19 @@ function draw() {
 
 function drawIss() {
     clear();
+
+    const groundTrack = getGroundTrack();
+
+    stroke(252, 226, 5);
+    strokeWeight(3);
+    noFill();
+    for (let i = 0; i < groundTrack.length; i++) {
+        if (i < groundTrack.length - 1 && groundTrack[i].y < groundTrack[i + 1].y) {
+            const p1 = issMap.latLngToPixel(groundTrack[i].x, groundTrack[i].y);
+            const p2 = issMap.latLngToPixel(groundTrack[i + 1].x, groundTrack[i + 1].y);
+            line(p1.x, p1.y, p2.x, p2.y);
+        }
+    }
 
     const issPixelLoc = issMap.latLngToPixel(latitude, longitude);
     const zoom = issMap.zoom() + 1;
@@ -50,4 +64,31 @@ async function getIss() {
 
     document.getElementById('lat').textContent = latitude;
     document.getElementById('long').textContent = longitude;
+}
+
+const orbits = 3; // Number of orbits to calculate
+const timeStep = 60; // Amount of steps to calculate per total degrees
+const degreesPerSecond = 360 / 86400; // The amount of degrees the earth rotates per second
+const T = 5580; // Period of ISS
+const inclination = 51.64; // Degrees of inclination of the iss' orbit
+const earthRotationPerOrbit = T * degreesPerSecond; // Amount earth rotates per orbit
+function getGroundTrack() {
+    const phase = asin(latitude / inclination); // Current phase shift of latitude of the ISS
+    const deltaTheta = orbits * 360 / timeStep;
+    const deltaRotation = earthRotationPerOrbit / deltaTheta;
+
+    let groundTrack = [];
+    let long = longitude;
+    for (let theta = 0; theta < orbits * 360; theta += deltaTheta) {
+        let lat = inclination * sin(phase + theta);
+
+        groundTrack.push(createVector(lat, long));
+        long += deltaTheta - deltaRotation;
+        if (long > 180) {
+            long = long - 360;
+        }
+
+    }
+
+    return groundTrack;
 }
