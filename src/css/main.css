@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
+body {
+    color: #000000;
+    font-size: 20px;
+    font-family: 'Roboto Condensed', sans-serif;
+    margin: 0;
+}
+
+#grid {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: 50px 1fr auto;
+    grid-template-areas: "header header header"
+                         "sidebar map map"
+                         "footer footer footer";
+    grid-gap: 0.5rem;
+}
+
+header {
+    background-color: #0B3D91;
+    grid-area: header;
+    box-shadow: 0 2px 4px grey;
+}
+
+#title {
+    padding-left: 0.5rem;
+    padding-top: 5px;
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 3px;
+    color: #fce205;
+}
+
+footer {
+    text-align: center;
+    border-top: 1px solid #eeeeee;
+    margin: 0 20px;
+    padding: 10px 0;
+    grid-area: footer;
+}
+
+#map {
+    grid-area: map;
+    margin: 20px 20px 20px 0;
+}
+
+#info {
+    grid-area: sidebar;
+    margin: 20px 0 20px 20px;
+}
+
+td, th {
+    border-top: 1px solid #ababab;
+    padding: 8px;
+}
+
+tr:nth-child(odd) {
+    background-color: #dddddd;
+}
+
+@media only screen and (max-width:550px) {
+    header {
+        text-align: center;
+    }
+
+    #map {
+        margin: 20px 20px 0 20px;
+    }
+
+    #info {
+        margin: 0 20px 20px 20px;
+    }
+
+    #grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: 50px 1r auto auto;
+        grid-template-areas: "header"
+                             "map"
+                             "sidebar"
+                             "footer";
+    }
+}

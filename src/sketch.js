@@ -1,5 +1,5 @@
 let img;
-const api_url = "https://api.wheretheiss.at/v1/satellites/25544";
+const api_url = "https://api.wheretheiss.at/v1/satellites/25544/?units=miles";
 let latitude = 0;
 let longitude = 0;
 
@@ -11,8 +11,13 @@ function preload() {
     img = loadImage('./icons/iss.png');
 }
 
+let mapDiv;
+
 function setup() {
-    canvas = createCanvas(640, 640);
+    mapDiv = document.getElementById('map');
+
+    canvas = createCanvas(mapDiv.offsetWidth, mapDiv.offsetHeight);
+    canvas.parent('map');
     imageMode(CENTER);
     angleMode(DEGREES);
 
@@ -20,7 +25,7 @@ function setup() {
 
     setInterval(function () {
         getIss().then(drawIss);
-    }, 3000); // Calls where the iss at api every 3 seconds
+    }, 1000); // Calls where the iss at api every 1 second
 }
 
 function createMap() {
@@ -67,8 +72,10 @@ async function getIss() {
     latitude = data['latitude'];
     longitude = data['longitude'];
 
-    document.getElementById('lat').textContent = latitude;
-    document.getElementById('long').textContent = longitude;
+    document.getElementById('lat').textContent = latitude.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('long').textContent = longitude.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('alt').textContent = data['altitude'].toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('vel').textContent = data['velocity'].toLocaleString(undefined, {maximumFractionDigits: 2});
 }
 
 const orbits = 3; // Number of orbits to calculate
