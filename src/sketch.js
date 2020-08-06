@@ -78,24 +78,25 @@ async function getIss() {
     document.getElementById('vel').textContent = data['velocity'].toLocaleString(undefined, {maximumFractionDigits: 2});
 }
 
-const orbits = 3; // Number of orbits to calculate
+const orbits = 1; // Number of orbits to calculate
 const timeStep = 180; // Amount of steps to calculate per total degrees
 const degreesPerSecond = 360 / 86400; // The amount of degrees the earth rotates per second
 const T = 5580; // Period of ISS
 const inclination = 51.64; // Degrees of inclination of the iss' orbit
 const earthRotationPerOrbit = T * degreesPerSecond; // Amount earth rotates per orbit
 function getGroundTrack() {
-    const phase = asin(latitude / inclination); // Current phase shift of latitude of the ISS
+    let phase = asin(latitude / inclination) - (longitude + 180); // Current phase shift of latitude of the ISS
     const deltaTheta = orbits * 360 / timeStep;
     const deltaRotation = earthRotationPerOrbit / timeStep;
 
     let groundTrack = [];
     let long = longitude;
     for (let theta = 0; theta < orbits * 360; theta += deltaTheta) {
-        let lat = inclination * sin(phase + theta);
+        let lat = inclination * sin((long + 180) + phase);
+        phase += deltaRotation;
 
         groundTrack.push(createVector(lat, long));
-        long += deltaTheta - deltaRotation;
+        long += deltaTheta;
         if (long > 180) {
             long -= 360;
         }
